@@ -12,10 +12,13 @@ export interface ClientCertAuthenticationPlugin {
     generateRsaKey(options: {
         keySize: number;
     }): Promise<{
-        value: string;
+        privateKey: string;
+        publicKey: string;
     }>;
     generateCsr(options: {
         privateKey: string;
+        publicKey: string;
+        commonName: string;
     }): Promise<{
         value: string;
     }>;

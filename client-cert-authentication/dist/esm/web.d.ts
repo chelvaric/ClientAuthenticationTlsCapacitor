@@ -10,10 +10,13 @@ export declare class ClientCertAuthenticationWeb extends WebPlugin implements Cl
     generateRsaKey(options: {
         keySize: number;
     }): Promise<{
-        value: string;
+        privateKey: string;
+        publicKey: string;
     }>;
     generateCsr(options: {
         privateKey: string;
+        publicKey: string;
+        commonName: string;
     }): Promise<{
         value: string;
     }>;

@@ -4,6 +4,7 @@ import { ClientCertAuthenticationPlugin } from './definitions';
 export class ClientCertAuthenticationWeb extends WebPlugin implements ClientCertAuthenticationPlugin {
  
  
+ 
   constructor() {
     super({
       name: 'ClientCertAuthentication',
@@ -16,14 +17,17 @@ export class ClientCertAuthenticationWeb extends WebPlugin implements ClientCert
     return options;
   }
 
-  async generateRsaKey(options: { keySize: number; }): Promise<{ value: string; }> {
+  async generateRsaKey(options: { keySize: number; }): Promise<{ privateKey: string; publicKey: string }> {
     console.log('generate rsa key', options);
-    return {value: "key"};
+    return { privateKey: "key", publicKey:"test"};
   }
-  async generateCsr(options: { privateKey: string; }): Promise<{ value: string; }> {
-    console.log('generate csr key', options);
-    return {value: "csr"};
+
+  generateCsr(options: { privateKey: string; publicKey: string; commonName: string; }): Promise<{ value: string; }> {
+    
+     console.log(options);
+     return  null;
   }
+  
 
  
 }

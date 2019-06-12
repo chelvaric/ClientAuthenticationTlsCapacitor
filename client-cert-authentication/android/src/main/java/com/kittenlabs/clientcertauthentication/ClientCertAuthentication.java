@@ -13,20 +13,30 @@ import com.getcapacitor.PluginMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Security;
 
 
+import org.spongycastle.operator.ContentSigner;
+import org.spongycastle.operator.OperatorCreationException;
+import org.spongycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.spongycastle.pkcs.PKCS10CertificationRequest;
+import org.spongycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.spongycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.spongycastle.util.io.pem.PemGenerationException;
 import org.spongycastle.util.io.pem.PemObject;
 import org.spongycastle.util.io.pem.PemWriter;
 
 
 import java.security.GeneralSecurityException;
+
+import javax.security.auth.x500.X500Principal;
 
 @NativePlugin()
 public class ClientCertAuthentication extends Plugin {
@@ -49,15 +59,64 @@ public class ClientCertAuthentication extends Plugin {
     @PluginMethod()
     public void generateCsr(PluginCall call)
     {
-        JSObject ret = new JSObject();
-        ret.put("value", "succeed");
-        call.success(ret);
+
+        String privateKey = call.getString("privateKey");
+        String publicKey = call.getString("publicKey");
+        String commonName = call.getString("commonName");
+
+
+        try {
+            PrivateKey key = CsrHelperClass.GetPrivateKeyFromPem(privateKey);
+            PublicKey pubKey = CsrHelperClass.GetPublicKeyFromPem(publicKey);
+
+
+            PKCS10CertificationRequestBuilder p10Builder = new JcaPKCS10CertificationRequestBuilder(
+                    new X500Principal("C=Belgium, L=East-Flanders, O=Qbus, CN=" + commonName),
+                    pubKey
+            );
+            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
+            ContentSigner signer = null;
+            try {
+                signer = csBuilder.build(key);
+            } catch (OperatorCreationException e) {
+                call.error(e.getMessage());
+            }
+            PKCS10CertificationRequest csr = p10Builder.build(signer);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            try (PemWriter pemWriter = new PemWriter(new OutputStreamWriter(outputStream))) {
+
+                pemWriter.writeObject(new PemObject("CERTIFICATE REQUEST", csr.getEncoded()));
+
+            } catch (IOException e) {
+
+                throw new RuntimeException(e);
+
+            }
+            String CsrPem = new String(outputStream.toByteArray());
+
+            JSObject ret = new JSObject();
+            ret.put("value", CsrPem);
+            call.success(ret);
+
+
+        }
+        catch (Exception ex)
+        {
+            call.error(ex.getMessage());
+        }
+
+
+
+
     }
 
     // this method makes a key with the bit that is given to it
     @PluginMethod()
     public void generateRsaKey(PluginCall call)  {
 
+        //get the key size passed from typescript
         int bits = call.getInt( "keySize");
 
         try {
@@ -70,28 +129,21 @@ public class ClientCertAuthentication extends Plugin {
             //we generate the key pair
             KeyPair keypair = generator.genKeyPair();
 
-            //this should be removed in production
-            Log.d("Keypair private:", keypair.getPrivate().toString());
+
 
 
             //write the private key to a pem file
-            PemObject object = new PemObject("RSA PRIVATE KEY",keypair.getPrivate().getEncoded());
 
-            //well write it to an bytearray first
-            ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
+            KeyPairString kps = CsrHelperClass.WritePrivatePemString(keypair);
 
-            //write the file to the stream
-            PemWriter pemWriter = new PemWriter(new OutputStreamWriter(bytestream));
-            pemWriter.writeObject(object);
 
-            //make a string from the file
-            String pemfile = new String(bytestream.toByteArray());
 
-            //this should be removed in production
-            Log.d("PemFile:", pemfile);
+
+
 
             JSObject ret = new JSObject();
-            ret.put("value", pemfile);
+            ret.put("privateKey", kps.PrivateKey);
+            ret.put("publicKey", kps.PublicKey);
             call.success(ret);
         }
         catch (IOException ioex)

@@ -23,14 +23,12 @@ export class ClientCertAuthenticationWeb extends WebPlugin {
     generateRsaKey(options) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('generate rsa key', options);
-            return { value: "key" };
+            return { privateKey: "key", publicKey: "test" };
         });
     }
     generateCsr(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('generate csr key', options);
-            return { value: "csr" };
-        });
+        console.log(options);
+        return null;
     }
 }
 const ClientCertAuthentication = new ClientCertAuthenticationWeb();

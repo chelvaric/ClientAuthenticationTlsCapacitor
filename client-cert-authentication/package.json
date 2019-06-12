@@ -1,6 +1,6 @@
 {
   "name": "client-cert-authentication",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "a plugin that generates keys and certificate signing requests to be send to a ca",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
