@@ -1,0 +1,49 @@
+{
+  "name": "client-cert-authentication",
+  "version": "0.0.1",
+  "description": "a plugin that generates keys and certificate signing requests to be send to a ca",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Willems Wouter",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/core": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^3.2.4",
+    "@capacitor/ios": "latest",
+    "@capacitor/android": "latest"
+  },
+  "files": [
+    "dist/",
+    "ios/",
+    "android/",
+    "ClientCertAuthentication.podspec"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chelvaric/ClientAuthenticationTlsCapacitor"
+  },
+  "bugs": {
+    "url": "https://github.com/chelvaric/ClientAuthenticationTlsCapacitor/issues"
+  }
+}

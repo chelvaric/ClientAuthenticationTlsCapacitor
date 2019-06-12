@@ -1,2 +1,2 @@
 # ClientAuthenticationTlsCapacitor
-a capacitor plugin to make public private key pair and a crs request
+a capacitor plugin to make public private key pair and a csr(certificate signing request)
